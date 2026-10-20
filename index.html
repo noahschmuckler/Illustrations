@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Illustrations</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="library">
+    <h1>Illustrations</h1>
+    <p class="sub">Visual explanations for the exam room. Pick a topic, then scroll to walk through it.</p>
+    <div class="cards" id="cards"></div>
+    <footer>
+      In a module: scroll or <kbd>↓</kbd>/<kbd>Space</kbd> next · <kbd>↑</kbd> back ·
+      <kbd>C</kbd> hide captions · <kbd>Esc</kbd> return here
+    </footer>
+  </main>
+  <script type="module">
+    import { modules } from './js/modules.js';
+    const cards = document.getElementById('cards');
+    modules.forEach((m, i) => {
+      const a = document.createElement('a');
+      a.className = 'card';
+      a.href = m.href;
+      a.style.setProperty('--c', m.color);
+      a.innerHTML = `<svg viewBox="0 0 300 140" aria-hidden="true">${m.thumb}</svg>
+        <span class="num">${String(i + 1).padStart(2, '0')}</span>
+        <h2>${m.title}</h2><p>${m.blurb}</p>`;
+      cards.appendChild(a);
+    });
+  </script>
+</body>
+</html>
