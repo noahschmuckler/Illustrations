@@ -12,6 +12,7 @@ It's a static site with no build step: plain HTML, CSS and JavaScript modules, w
 | 1 | Cholesterol: cracks, HDL vs LDL repair, narrowing and hardening | `modules/cholesterol.js` |
 | 2 | Blood sugar & A1c: capillaries, sugar-coated red cells, capillary loss, large-artery damage | `modules/a1c.js` |
 | 3 | Triglycerides: extra energy → liver → triglycerides, worse LDL plaque, pancreatitis | `modules/triglycerides.js` |
+| 4 | Blood pressure: systolic/diastolic, salt & water, kidney filters (eGFR, UACR, CKD), the kidney feedback loop, medicines | `modules/bp.js` |
 
 ## Presenting
 

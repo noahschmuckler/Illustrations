@@ -7,8 +7,10 @@ export function el(tag, attrs = {}, parent) {
   for (const [k, v] of Object.entries(attrs)) {
     if (v === undefined || v === null) continue;
     if (k === 'text') node.textContent = v;
-    else node.setAttribute(k, v);
+    else if (k !== 'fill' || tag !== 'text') node.setAttribute(k, v);
   }
+  // CSS classes would override a fill attribute on text, so use an inline style
+  if (tag === 'text' && attrs.fill) node.style.fill = attrs.fill;
   if (parent) parent.appendChild(node);
   return node;
 }
@@ -21,6 +23,7 @@ export function set(node, attrs) {
     if (cache[k] !== s) {
       cache[k] = s;
       if (k === 'text') node.textContent = s;
+      else if (k === 'fill' && node.tagName === 'text') node.style.fill = s;
       else node.setAttribute(k, s);
     }
   }

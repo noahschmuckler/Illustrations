@@ -43,4 +43,15 @@ export const modules = [
       <g fill="#ffad4a" stroke="#a8560c"><circle cx="246" cy="71" r="5"/><circle cx="268" cy="76" r="6"/><circle cx="290" cy="79" r="5"/><circle cx="110" cy="70" r="7"/><circle cx="150" cy="58" r="6"/><circle cx="90" cy="90" r="5"/></g>
       <circle cx="20" cy="30" r="4" fill="#4aa3ff"/><circle cx="18" cy="60" r="4" fill="#ffd84d"/><circle cx="22" cy="92" r="4" fill="#a66cff"/>`,
   },
+  {
+    id: 'bp',
+    title: 'Blood Pressure',
+    blurb: 'Systolic vs diastolic, why salt raises pressure, how the kidneys filter and sense pressure, and what each blood pressure medicine does.',
+    href: 'modules/bp.html',
+    color: '#ff6a74',
+    thumb: `
+      <polyline fill="none" stroke="#ff5a64" stroke-width="3" points="10,95 25,45 40,62 70,85 85,95 100,45 115,62 145,85 160,95 175,45 190,62 220,85 235,95 250,45 265,62 290,82"/>
+      <line x1="0" y1="45" x2="300" y2="45" stroke="#ff8a8a" stroke-dasharray="5 5"/><line x1="0" y1="95" x2="300" y2="95" stroke="#7cc4ff" stroke-dasharray="5 5"/>
+      <text x="8" y="30" fill="#e8eef7" font-size="20" font-weight="700" font-family="system-ui">130/80</text>`,
+  },
 ];

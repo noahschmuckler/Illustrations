@@ -101,3 +101,5 @@ text { font-family: inherit; }
 .enzyme { color: #9be15d; }
 .tg-fill { fill: #ffad4a; }
 .danger-fill { fill: #ff5a5a; }
+.protein { color: #b98cff; }
+.caption p.eg { color: var(--ink-dim); font-style: italic; margin-top: -0.4em; }
