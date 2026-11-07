@@ -11,6 +11,7 @@ It's a static site with no build step: plain HTML, CSS and JavaScript modules, w
 |---|--------|------|
 | 1 | Cholesterol: cracks, HDL vs LDL repair, narrowing and hardening | `modules/cholesterol.js` |
 | 2 | Blood sugar & A1c: capillaries, sugar-coated red cells, capillary loss, large-artery damage | `modules/a1c.js` |
+| 3 | Triglycerides: extra energy → liver → triglycerides, worse LDL plaque, pancreatitis | `modules/triglycerides.js` |
 
 ## Presenting
 
@@ -26,7 +27,7 @@ index.html            library menu (cards come from js/modules.js)
 css/style.css         all styling
 js/core.js            helpers: svg creation, easing, color mixing, seeded random
 js/scrolly.js         the scroll engine: captions, progress, keyboard and rail navigation
-js/art.js             shared art: artery tube, cracks, HDL/LDL, red cells, cross-section
+js/art.js             shared art: artery tube, cracks, HDL/LDL/TG, red cells, cross-section, capillary close-up
 modules/<name>.html   tiny shell page that loads modules/<name>.js
 modules/<name>.js     one module: its `steps` (caption text) plus build() and render()
 ```

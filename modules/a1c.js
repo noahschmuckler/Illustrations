@@ -3,7 +3,7 @@
 
 import { runModule } from '../js/scrolly.js';
 import { el, set, seg, ease, easeOut, lerp, mix, rng, clamp, smoothOpen, blobPath } from '../js/core.js';
-import { C, Tube, CrossSection, makeCrack, makeScar, makeRBC, place } from '../js/art.js';
+import { C, Tube, CrossSection, Capillary, makeCrack, makeScar, makeRBC, place } from '../js/art.js';
 
 const steps = [
   { id: 'bed', html: `<h2>Capillaries: where the work happens</h2><p>Arteries branch into smaller and smaller vessels, down to <b>capillaries</b> — a fine mesh running through every organ.</p><p>This is where oxygen and nutrients are handed off to your cells, and waste is picked up.</p>` },
@@ -26,7 +26,7 @@ const sugarAmt = a => clamp((a - 4) / 8);
 const eAG = a => Math.round(28.7 * a - 46.7); // estimated average glucose, mg/dL
 
 let bedG, caps, links, bedCells, zoom;
-let closeG, Y0 = 600, lumenPath, lumenClip, wallTop, wallBot, seamsG, tissueC, rbcs, sugar, nicks, exch, closeLabels;
+let closeG, cap;
 let inset, lifeG, lifeCells, gaugeG, marker, markerText;
 let tube, cracks, scars, csN, csH;
 
@@ -105,67 +105,9 @@ function buildBed(svg) {
   zoom = caps[3].lum.getPointAtLength(caps[3].len * 0.5);
 }
 
-function edgeH(x, pinch) {
-  return 50 * (1 - pinch * Math.exp(-Math.pow((x - 620) / 150, 2)));
-}
-
 function buildClose(svg) {
   closeG = el('g', {}, svg);
-  const r = rng(19);
-
-  // tissue cells above and below the capillary
-  tissueC = [];
-  [[440, 6], [770, 6]].forEach(([y, n]) => {
-    for (let i = 0; i < n; i++) {
-      const x = 110 + i * 196 + (r() - 0.5) * 40;
-      const g = el('g', { transform: `translate(${x.toFixed(0)} ${(y + (r() - 0.5) * 20).toFixed(0)})` }, closeG);
-      const body = el('path', { d: blobPath(78, 46, Math.floor(r() * 1e6), 0.12, 9), fill: C.tissue, opacity: 0.9 }, g);
-      const nuc = el('circle', { cx: (r() - 0.5) * 30, r: 14, fill: '#7d4a5c' }, g);
-      tissueC.push({ x, body, nuc });
-    }
-  });
-  el('text', { x: 60, y: 384, class: 'svg-small', text: 'tissue cells' }, closeG);
-
-  // oxygen / nutrients out, waste in
-  exch = [];
-  const exG = el('g', {}, closeG);
-  for (let i = 0; i < 34; i++) {
-    const up = i % 2 === 0;
-    const out = r() < 0.65;
-    exch.push({
-      x: 40 + r() * 1120, up, out, ph: r(), node: el('circle', { r: out ? 7 : 6, fill: out ? '#ffe9b8' : '#9fe08f', stroke: out ? '#fff7e0' : '#d8ffd0', 'stroke-width': 1.5, opacity: 0 }, exG),
-    });
-  }
-
-  // capillary
-  const id = 'capclip';
-  const cp = el('clipPath', { id }, closeG);
-  lumenClip = el('path', {}, cp);
-  lumenPath = el('path', { fill: '#2a0a10' }, closeG);
-  wallTop = el('path', { fill: '#c8606a', stroke: '#f09aa2', 'stroke-width': 1.5 }, closeG);
-  wallBot = el('path', { fill: '#c8606a', stroke: '#f09aa2', 'stroke-width': 1.5 }, closeG);
-  seamsG = el('g', {}, closeG);
-  nicks = [];
-  const nickG = el('g', {}, closeG);
-  for (let i = 0; i < 46; i++) {
-    const top = r() < 0.5;
-    const s = 0.7 + r() * 0.7;
-    const pts = top ? `-6,0 -2,${-12 * s} 1,-5 4,${-15 * s} 7,0` : `-6,0 -2,${12 * s} 1,5 4,${15 * s} 7,0`;
-    nicks.push({ x: 30 + r() * 1140, top, thr: r(), node: el('polygon', { points: pts, fill: '#3a0508', stroke: '#ffd2c8', 'stroke-width': 0.8, opacity: 0 }, nickG) });
-  }
-  const inner = el('g', { 'clip-path': `url(#${id})` }, closeG);
-  sugar = [];
-  for (let i = 0; i < 80; i++) {
-    sugar.push({ x: r() * 1300, y: (r() - 0.5) * 84, node: el('circle', { r: 5, fill: 'url(#sugarGrad)', style: 'display:none' }, inner), on: false });
-  }
-  rbcs = [];
-  for (let i = 0; i < 10; i++) rbcs.push({ i, age: 0.25 + r() * 0.75, cell: makeRBC(inner, 40, 50 + i) });
-
-  closeLabels = el('g', { opacity: 0 }, closeG);
-  el('circle', { cx: 400, cy: 862, r: 7, fill: '#ffe9b8' }, closeLabels);
-  el('text', { x: 416, y: 869, class: 'svg-small', text: 'oxygen & nutrients out' }, closeLabels);
-  el('circle', { cx: 700, cy: 862, r: 6, fill: '#9fe08f' }, closeLabels);
-  el('text', { x: 716, y: 869, class: 'svg-small', text: 'waste in' }, closeLabels);
+  cap = new Capillary(closeG, { y0: 600, seed: 19 });
 }
 
 function buildInset(svg) {
@@ -214,7 +156,6 @@ function build(svg) {
   buildBig(svg);
 }
 
-let flowOff = 0;
 let bedFlow = 0;
 
 function render(S, time, dt) {
@@ -264,72 +205,14 @@ function render(S, time, dt) {
   const closeO = seg(zIn, 0.45, 0.9) * (1 - seg(zOut, 0, 0.45));
   set(closeG, { opacity: closeO, display: closeO < 0.005 ? 'none' : '', transform: `translate(600 600) scale(${lerp(0.55, 1, seg(zIn, 0.4, 1)) * lerp(1, 0.6, zOut)}) translate(-600 -600)` });
   if (closeO > 0.005) {
-    const pinch = ease(seg(sClose, 0.1, 0.75));
-    const speed = 85 * Math.pow(1 - pinch, 1.4);
-    flowOff += speed * dt;
-
-    // walls follow the pinch
-    if (closeG.__pinch !== pinch.toFixed(3)) {
-      closeG.__pinch = pinch.toFixed(3);
-      const xs = [];
-      for (let x = -60; x <= 1260; x += 15) xs.push(x);
-      const topIn = xs.map(x => [x, Y0 - edgeH(x, pinch)]);
-      const botIn = xs.map(x => [x, Y0 + edgeH(x, pinch)]);
-      const P = pts => pts.map(p => `${p[0]} ${p[1].toFixed(1)}`).join(' L ');
-      const lum = `M ${P(topIn)} L ${P(botIn.slice().reverse())} Z`;
-      set(lumenPath, { d: lum });
-      set(lumenClip, { d: lum });
-      set(wallTop, { d: `M ${P(topIn)} L ${P(topIn.slice().reverse().map(([x, y]) => [x, y - 18]))} Z` });
-      set(wallBot, { d: `M ${P(botIn)} L ${P(botIn.slice().reverse().map(([x, y]) => [x, y + 18]))} Z` });
-      seamsG.innerHTML = '';
-      for (let x = 40; x < 1200; x += 150) {
-        [-1, 1].forEach(s => {
-          const y = Y0 + s * edgeH(x, pinch);
-          el('line', { x1: x, y1: y, x2: x, y2: y + s * 18, stroke: '#8a3440', 'stroke-width': 2 }, seamsG);
-          el('ellipse', { cx: x + 75, cy: Y0 + s * (edgeH(x + 75, pinch) + 9), rx: 16, ry: 5, fill: '#8a3440' }, seamsG);
-        });
-      }
-    }
-
-    // red cells, single file
-    const span = 1300;
-    rbcs.forEach(({ i, age, cell }) => {
-      const x = ((i * 130 + flowOff) % span) - 50;
-      cell.setSugar(amt * age * 1.15 * seg(sCoat, 0.15, 0.45));
-      cell.setSpiky(ease(seg(sJag, 0.1, 0.5)));
-      set(cell.g, { transform: `translate(${x.toFixed(1)} ${Y0}) rotate(${(x * 0.15).toFixed(1)})` });
-    });
-    // sugar in the plasma
-    const k = Math.round(sugar.length * amt * seg(sSugar, 0.1, 0.5));
-    sugar.forEach((s, i) => {
-      const on = i < k;
-      if (on !== s.on) { s.node.style.display = on ? '' : 'none'; s.on = on; }
-      if (!on) return;
-      const x = ((s.x + flowOff * 1.05) % span) - 50;
-      set(s.node, { cx: x, cy: Y0 + s.y * edgeH(x, pinch) / 50 });
-    });
-    // scrapes in the wall
-    const dmg = seg(sJag, 0.3, 0.9) + 0.4 * seg(sClose, 0, 0.6);
-    nicks.forEach(n => {
-      const y = Y0 + (n.top ? -1 : 1) * edgeH(n.x, pinch);
-      set(n.node, { transform: `translate(${n.x.toFixed(0)} ${y.toFixed(1)})`, opacity: clamp((dmg - n.thr) * 6) });
-    });
-    // exchange with tissue, fading where flow stops
-    const exO = seg(sSingle, 0.6, 0.9) * (1 - seg(sCoat, 0, 0.3) * 0.6);
-    exch.forEach(e => {
-      const f = (time * 0.45 + e.ph) % 1;
-      const local = 1 - pinch * (0.4 + 0.6 * Math.exp(-Math.pow((e.x - 620) / 260, 2)));
-      const s = e.up ? -1 : 1;
-      const d0 = 70, d1 = 160;
-      const dist = e.out ? lerp(d0, d1, f) : lerp(d1, d0, f);
-      const o = Math.sin(f * Math.PI) * exO * local;
-      set(e.node, { cx: e.x, cy: Y0 + s * dist, opacity: o });
-    });
-    set(closeLabels, { opacity: exO });
-    tissueC.forEach(t => {
-      const sick = pinch * (0.35 + 0.65 * Math.exp(-Math.pow((t.x - 620) / 260, 2)));
-      set(t.body, { fill: mix(C.tissue, C.tissueDead, sick) });
-      set(t.nuc, { opacity: 1 - 0.7 * sick });
+    cap.update({
+      dt, time,
+      pinch: ease(seg(sClose, 0.1, 0.75)),
+      sugar: amt * seg(sSugar, 0.1, 0.5),
+      coat: amt * seg(sCoat, 0.15, 0.45),
+      spiky: ease(seg(sJag, 0.1, 0.5)),
+      damage: seg(sJag, 0.3, 0.9) + 0.4 * seg(sClose, 0, 0.6),
+      exchange: seg(sSingle, 0.6, 0.9) * (1 - seg(sCoat, 0, 0.3) * 0.6),
     });
   }
 

@@ -44,6 +44,8 @@ export function installDefs(svg) {
   grad(d, 'radialGradient', 'scarGrad', [[0, '#fff2c6'], [0.35, '#efc979'], [0.8, '#bd8a42'], [1, '#8a5428']], { cx: 0.4, cy: 0.32, r: 0.75 });
   grad(d, 'radialGradient', 'bloodGrad', [[0, '#741420'], [1, '#33060c']]);
   grad(d, 'radialGradient', 'glowGrad', [[0, '#ff4a5a', 0.22], [0.6, '#ff4a5a', 0.06], [1, '#ff4a5a', 0]]);
+  grad(d, 'radialGradient', 'tgGrad', [[0, '#ffe6b0'], [0.5, '#ffad4a'], [1, '#d96f14']], { cx: 0.4, cy: 0.35, r: 0.7 });
+  grad(d, 'radialGradient', 'inflameGrad', [[0, '#ff3b3b', 0.55], [0.55, '#ff3b3b', 0.22], [1, '#ff3b3b', 0]]);
   grad(d, 'radialGradient', 'sugarGrad', [[0, '#e6f3ff'], [0.4, '#6db7ff'], [1, '#1d63c4']], { cx: 0.35, cy: 0.3 });
   return d;
 }
@@ -76,6 +78,14 @@ export function makeHDL(parent, size = 10) {
   const g = el('g', {}, parent);
   el('circle', { r: size, fill: 'url(#hdlGrad)', stroke: C.hdlEdge, 'stroke-width': Math.max(1, size * 0.12) }, g);
   el('circle', { cx: -size * 0.35, cy: -size * 0.38, r: size * 0.22, fill: '#ffffff', opacity: 0.7 }, g);
+  return g;
+}
+
+// Triglyceride: a smooth, glossy, oily droplet.
+export function makeTG(parent, size = 12) {
+  const g = el('g', {}, parent);
+  el('circle', { r: size, fill: 'url(#tgGrad)', stroke: '#a8560c', 'stroke-width': Math.max(1, size * 0.09), opacity: 0.95 }, g);
+  el('ellipse', { cx: -size * 0.32, cy: -size * 0.4, rx: size * 0.34, ry: size * 0.2, fill: '#fffaf0', opacity: 0.8, transform: `rotate(-30 ${-size * 0.32} ${-size * 0.4})` }, g);
   return g;
 }
 
@@ -347,6 +357,159 @@ export class CrossSection {
       const x = c.x + Math.sin(time * 1.7 + c.ph) * 3, y = c.y + Math.cos(time * 1.3 + c.ph) * 3;
       const inside = Math.hypot(x - L.x, y - L.y) + 10 < L.r;
       set(c.g, { transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`, opacity: inside ? 1 : 0 });
+    });
+  }
+}
+
+// ---------- single capillary, close up ----------
+//
+// A horizontal capillary with red cells passing single file, tissue cells above and
+// below, and oxygen/waste exchange. Modules add their own things to `plasma`
+// (behind the red cells) and `front` (in front of them), both clipped to the lumen,
+// and can decorate each tissue cell via `decorateCell(group, rnd, cell)`.
+
+export class Capillary {
+  constructor(parent, { y0 = 600, seed = 19, label = 'tissue cells', decorateCell, sugarDots = 80, nicks = 46, cells = 10 } = {}) {
+    this.y0 = y0;
+    this.flowOff = 0;
+    this.pinch = 0;
+    const g = (this.g = el('g', {}, parent));
+    const r = rng(seed);
+
+    // tissue cells above and below the capillary
+    this.tissue = [];
+    [[y0 - 160, 6], [y0 + 170, 6]].forEach(([y, n]) => {
+      for (let i = 0; i < n; i++) {
+        const x = 110 + i * 196 + (r() - 0.5) * 40;
+        const cy = y + (r() - 0.5) * 20;
+        const cg = el('g', { transform: `translate(${x.toFixed(0)} ${cy.toFixed(0)})` }, g);
+        const inner = el('g', {}, cg);
+        const body = el('path', { d: blobPath(78, 46, Math.floor(r() * 1e6), 0.12, 9), fill: C.tissue, opacity: 0.9 }, inner);
+        const nuc = el('circle', { cx: (r() - 0.5) * 30, r: 14, fill: '#7d4a5c' }, inner);
+        const t = { x, y: cy, g: cg, inner, body, nuc, sick: 0 };
+        if (decorateCell) t.decor = decorateCell(inner, r, t);
+        this.tissue.push(t);
+      }
+    });
+    this.labelEl = el('text', { x: 60, y: y0 - 216, class: 'svg-small', text: label }, g);
+
+    // oxygen / nutrients out, waste in
+    this.exch = [];
+    const exG = el('g', {}, g);
+    for (let i = 0; i < 34; i++) {
+      const up = i % 2 === 0;
+      const out = r() < 0.65;
+      this.exch.push({
+        x: 40 + r() * 1120, up, out, ph: r(),
+        node: el('circle', { r: out ? 7 : 6, fill: out ? '#ffe9b8' : '#9fe08f', stroke: out ? '#fff7e0' : '#d8ffd0', 'stroke-width': 1.5, opacity: 0 }, exG),
+      });
+    }
+
+    // the capillary itself
+    const id = 'capclip' + Math.floor(Math.random() * 1e9);
+    const cp = el('clipPath', { id }, g);
+    this.lumenClip = el('path', {}, cp);
+    this.lumenPath = el('path', { fill: '#2a0a10' }, g);
+    this.wallTop = el('path', { fill: '#c8606a', stroke: '#f09aa2', 'stroke-width': 1.5 }, g);
+    this.wallBot = el('path', { fill: '#c8606a', stroke: '#f09aa2', 'stroke-width': 1.5 }, g);
+    this.seamsG = el('g', {}, g);
+    this.nicks = [];
+    const nickG = el('g', {}, g);
+    for (let i = 0; i < nicks; i++) {
+      const top = r() < 0.5;
+      const s = 0.7 + r() * 0.7;
+      const pts = top ? `-6,0 -2,${-12 * s} 1,-5 4,${-15 * s} 7,0` : `-6,0 -2,${12 * s} 1,5 4,${15 * s} 7,0`;
+      this.nicks.push({ x: 30 + r() * 1140, top, thr: r(), node: el('polygon', { points: pts, fill: '#3a0508', stroke: '#ffd2c8', 'stroke-width': 0.8, opacity: 0 }, nickG) });
+    }
+    const inner = (this.inner = el('g', { 'clip-path': `url(#${id})` }, g));
+    this.plasma = el('g', {}, inner);
+    this.sugar = [];
+    for (let i = 0; i < sugarDots; i++) {
+      this.sugar.push({ x: r() * 1300, y: (r() - 0.5) * 84, node: el('circle', { r: 5, fill: 'url(#sugarGrad)', style: 'display:none' }, inner), on: false });
+    }
+    this.rbcs = [];
+    for (let i = 0; i < cells; i++) this.rbcs.push({ i, age: 0.25 + r() * 0.75, cell: makeRBC(inner, 40, 50 + i) });
+    this.front = el('g', {}, inner);
+
+    this.legend = el('g', { opacity: 0 }, g);
+    el('circle', { cx: 400, cy: y0 + 262, r: 7, fill: '#ffe9b8' }, this.legend);
+    el('text', { x: 416, y: y0 + 269, class: 'svg-small', text: 'oxygen & nutrients out' }, this.legend);
+    el('circle', { cx: 700, cy: y0 + 262, r: 6, fill: '#9fe08f' }, this.legend);
+    el('text', { x: 716, y: y0 + 269, class: 'svg-small', text: 'waste in' }, this.legend);
+  }
+
+  // half-height of the lumen at x (narrows around x = 620 as it pinches shut)
+  edgeH(x, pinch = this.pinch) {
+    return 50 * (1 - pinch * Math.exp(-Math.pow((x - 620) / 150, 2)));
+  }
+
+  // pinch: 0..1 capillary closing; starve: 0..1 loss of blood supply (defaults to pinch);
+  // flow: extra multiplier on blood speed; sugar: 0..1 sugar dots shown; coat / spiky: red-cell
+  // sugar coating and crystal spikes; damage: 0..1 wall scrapes; exchange: 0..1 O2/waste shown.
+  update({ dt, time, pinch = 0, starve = pinch, flow = 1, sugar = 0, coat = 0, spiky = 0, damage = 0, exchange = 0 }) {
+    const y0 = this.y0;
+    this.pinch = pinch;
+    this.flowOff += 85 * Math.pow(1 - pinch, 1.4) * flow * dt;
+
+    // walls follow the pinch
+    const key = pinch.toFixed(3);
+    if (this._key !== key) {
+      this._key = key;
+      const xs = [];
+      for (let x = -60; x <= 1260; x += 15) xs.push(x);
+      const topIn = xs.map(x => [x, y0 - this.edgeH(x)]);
+      const botIn = xs.map(x => [x, y0 + this.edgeH(x)]);
+      const P = pts => pts.map(p => `${p[0]} ${p[1].toFixed(1)}`).join(' L ');
+      const lum = `M ${P(topIn)} L ${P(botIn.slice().reverse())} Z`;
+      set(this.lumenPath, { d: lum });
+      set(this.lumenClip, { d: lum });
+      set(this.wallTop, { d: `M ${P(topIn)} L ${P(topIn.slice().reverse().map(([x, y]) => [x, y - 18]))} Z` });
+      set(this.wallBot, { d: `M ${P(botIn)} L ${P(botIn.slice().reverse().map(([x, y]) => [x, y + 18]))} Z` });
+      this.seamsG.innerHTML = '';
+      for (let x = 40; x < 1200; x += 150) {
+        [-1, 1].forEach(s => {
+          const y = y0 + s * this.edgeH(x);
+          el('line', { x1: x, y1: y, x2: x, y2: y + s * 18, stroke: '#8a3440', 'stroke-width': 2 }, this.seamsG);
+          el('ellipse', { cx: x + 75, cy: y0 + s * (this.edgeH(x + 75) + 9), rx: 16, ry: 5, fill: '#8a3440' }, this.seamsG);
+        });
+      }
+    }
+
+    // red cells, single file
+    const span = 1300;
+    this.rbcs.forEach(({ i, age, cell }) => {
+      const x = ((i * 130 + this.flowOff) % span) - 50;
+      cell.setSugar(coat * age * 1.15);
+      cell.setSpiky(spiky);
+      set(cell.g, { transform: `translate(${x.toFixed(1)} ${y0}) rotate(${(x * 0.15).toFixed(1)})` });
+    });
+    // sugar in the plasma
+    const k = Math.round(this.sugar.length * sugar);
+    this.sugar.forEach((s, i) => {
+      const on = i < k;
+      if (on !== s.on) { s.node.style.display = on ? '' : 'none'; s.on = on; }
+      if (!on) return;
+      const x = ((s.x + this.flowOff * 1.05) % span) - 50;
+      set(s.node, { cx: x, cy: y0 + (s.y * this.edgeH(x)) / 50 });
+    });
+    // scrapes in the wall
+    this.nicks.forEach(n => {
+      const y = y0 + (n.top ? -1 : 1) * this.edgeH(n.x);
+      set(n.node, { transform: `translate(${n.x.toFixed(0)} ${y.toFixed(1)})`, opacity: clamp((damage - n.thr) * 6) });
+    });
+    // exchange with tissue, fading where blood supply is lost
+    const near = x => 0.4 + 0.6 * Math.exp(-Math.pow((x - 620) / 260, 2));
+    this.exch.forEach(e => {
+      const f = (time * 0.45 + e.ph) % 1;
+      const s = e.up ? -1 : 1;
+      const dist = e.out ? lerp(70, 160, f) : lerp(160, 70, f);
+      set(e.node, { cx: e.x, cy: y0 + s * dist, opacity: Math.sin(f * Math.PI) * exchange * (1 - starve * near(e.x)) });
+    });
+    set(this.legend, { opacity: exchange });
+    this.tissue.forEach(t => {
+      t.sick = starve * (0.35 + 0.65 * Math.exp(-Math.pow((t.x - 620) / 260, 2)));
+      set(t.body, { fill: mix(C.tissue, C.tissueDead, t.sick) });
+      set(t.nuc, { opacity: 1 - 0.7 * t.sick });
     });
   }
 }

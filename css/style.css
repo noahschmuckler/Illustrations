@@ -97,3 +97,7 @@ text { font-family: inherit; }
   .rail { right: 6px; }
 }
 .sugar-fill { fill: var(--sugar); }
+.tg { color: #ffad4a; }
+.enzyme { color: #9be15d; }
+.tg-fill { fill: #ffad4a; }
+.danger-fill { fill: #ff5a5a; }

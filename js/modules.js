@@ -31,4 +31,16 @@ export const modules = [
       <g fill="#4aa3ff"><circle cx="146" cy="64" r="2.5"/><circle cx="156" cy="73" r="2.5"/><circle cx="144" cy="77" r="2.5"/><circle cx="236" cy="62" r="2.5"/><circle cx="246" cy="70" r="2.5"/><circle cx="238" cy="79" r="2.5"/><circle cx="250" cy="78" r="2.5"/><circle cx="230" cy="70" r="2.5"/>
       <circle cx="100" cy="62" r="2"/><circle cx="195" cy="80" r="2"/><circle cx="20" cy="76" r="2"/><circle cx="280" cy="60" r="2"/></g>`,
   },
+  {
+    id: 'triglycerides',
+    title: 'Triglycerides',
+    blurb: 'How extra energy — alcohol, sugar, fat — becomes triglycerides in the liver, how they worsen plaque, and how very high levels cause pancreatitis.',
+    href: 'modules/triglycerides.html',
+    color: '#ffad4a',
+    thumb: `
+      <path d="M 40 50 C 90 28 170 26 230 40 C 260 48 250 62 220 72 C 170 88 130 112 90 118 C 55 120 34 100 40 50 Z" fill="#953a2c" stroke="#e08a74"/>
+      <path d="M 225 66 C 250 70 270 78 300 80" stroke="#a8323e" stroke-width="16" fill="none"/>
+      <g fill="#ffad4a" stroke="#a8560c"><circle cx="246" cy="71" r="5"/><circle cx="268" cy="76" r="6"/><circle cx="290" cy="79" r="5"/><circle cx="110" cy="70" r="7"/><circle cx="150" cy="58" r="6"/><circle cx="90" cy="90" r="5"/></g>
+      <circle cx="20" cy="30" r="4" fill="#4aa3ff"/><circle cx="18" cy="60" r="4" fill="#ffd84d"/><circle cx="22" cy="92" r="4" fill="#a66cff"/>`,
+  },
 ];
