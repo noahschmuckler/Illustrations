@@ -11,9 +11,11 @@
 import { el, clamp, seg } from './core.js';
 import { installDefs } from './art.js';
 
-export function runModule({ title, steps, build, render, viewBox = '0 0 1200 900', stepHeight = 1.15 }) {
+export function runModule({ title, steps, build, render, viewBox = '0 0 1200 900', stepHeight = 1.15, dense = false }) {
   document.title = `${title} · Illustrations`;
   document.body.classList.add('module');
+  // provider modules carry more text per step
+  if (dense) document.body.classList.add('dense');
 
   // ---- DOM ----
   const top = document.createElement('header');

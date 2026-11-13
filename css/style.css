@@ -103,3 +103,20 @@ text { font-family: inherit; }
 .danger-fill { fill: #ff5a5a; }
 .protein { color: #b98cff; }
 .caption p.eg { color: var(--ink-dim); font-style: italic; margin-top: -0.4em; }
+
+/* library sections */
+.library .section { font-size: 1.35rem; margin: 40px 0 6px; color: var(--ink); letter-spacing: .01em; }
+.library .section:first-of-type { margin-top: 8px; }
+.library .section-sub { color: var(--ink-dim); margin: 0 0 18px; }
+.library .section + .cards { margin-top: 14px; }
+
+/* provider modules: more text per step */
+body.dense .caption h2 { font-size: clamp(1.4rem, 2.1vw, 2.2rem); }
+body.dense .caption p, body.dense .caption li { font-size: clamp(0.98rem, 1.15vw, 1.25rem); line-height: 1.42; }
+body.dense .caption { max-height: 92vh; overflow: hidden; }
+.caption a { color: #9cc9ff; }
+.drug { color: #ff8a92; }
+.ang { color: #ffb84d; }
+.aldo { color: #c99bff; }
+.caption .part { display: block; color: var(--ink-dim); font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; margin-bottom: .6em; }
+.caption ul.sources li { font-size: clamp(0.9rem, 1vw, 1.05rem); margin-bottom: .45em; }

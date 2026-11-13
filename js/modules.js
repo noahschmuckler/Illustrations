@@ -1,4 +1,5 @@
 // The library menu. Add a module here and it appears on the home page.
+// `audience`: 'patient' (default) or 'provider' picks the section it is listed in.
 // `thumb` is a small inline SVG (viewBox 0 0 300 140) for the card.
 
 export const modules = [
@@ -53,5 +54,23 @@ export const modules = [
       <polyline fill="none" stroke="#ff5a64" stroke-width="3" points="10,95 25,45 40,62 70,85 85,95 100,45 115,62 145,85 160,95 175,45 190,62 220,85 235,95 250,45 265,62 290,82"/>
       <line x1="0" y1="45" x2="300" y2="45" stroke="#ff8a8a" stroke-dasharray="5 5"/><line x1="0" y1="95" x2="300" y2="95" stroke="#7cc4ff" stroke-dasharray="5 5"/>
       <text x="8" y="30" fill="#e8eef7" font-size="20" font-weight="700" font-family="system-ui">130/80</text>`,
+  },
+  {
+    id: 'raas',
+    audience: 'provider',
+    title: 'Renin–Angiotensin–Aldosterone System',
+    blurb: 'Physiology, hypertension and CKD, and where each medication acts — ACEi, ARB, MRA, finerenone, the triple whammy — with KDIGO and guideline sources.',
+    href: 'modules/raas.html',
+    color: '#ffb84d',
+    thumb: `
+      <g font-family="system-ui" font-size="13" font-weight="700" text-anchor="middle">
+        <rect x="10" y="20" width="80" height="28" rx="8" fill="#141c2b" stroke="#c9d6ea"/><text x="50" y="39" fill="#c9d6ea">AGT</text>
+        <rect x="110" y="20" width="80" height="28" rx="8" fill="#141c2b" stroke="#ffd27a"/><text x="150" y="39" fill="#ffd27a">Ang I</text>
+        <rect x="210" y="20" width="80" height="28" rx="8" fill="#141c2b" stroke="#ffb84d"/><text x="250" y="39" fill="#ffb84d">Ang II</text>
+        <path d="M 90 34 L 108 34 M 190 34 L 208 34" stroke="#8592ab" stroke-width="2"/>
+        <rect x="150" y="80" width="130" height="30" rx="15" fill="#2a1220" stroke="#ff6a74"/><text x="215" y="100" fill="#ffd6da">ACEi · ARB</text>
+        <path d="M 230 50 L 230 78" stroke="#ff6a74" stroke-width="3"/>
+        <circle cx="60" cy="95" r="18" fill="#b4504c"/><text x="60" y="130" fill="#9aa7ba" font-size="11">renin</text>
+      </g>`,
   },
 ];

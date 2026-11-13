@@ -10,7 +10,11 @@
   <main class="library">
     <h1>Illustrations</h1>
     <p class="sub">Visual explanations for the exam room. Pick a topic, then scroll to walk through it.</p>
-    <div class="cards" id="cards"></div>
+    <h2 class="section">For patients</h2>
+    <div class="cards" id="patient-cards"></div>
+    <h2 class="section">For providers</h2>
+    <p class="section-sub">Clinician-level physiology and prescribing reviews, with sources.</p>
+    <div class="cards" id="provider-cards"></div>
     <footer>
       In a module: scroll or <kbd>↓</kbd>/<kbd>Space</kbd> next · <kbd>↑</kbd> back ·
       <kbd>C</kbd> hide captions · <kbd>Esc</kbd> return here
@@ -18,8 +22,11 @@
   </main>
   <script type="module">
     import { modules } from './js/modules.js';
-    const cards = document.getElementById('cards');
-    modules.forEach((m, i) => {
+    const count = { patient: 0, provider: 0 };
+    modules.forEach(m => {
+      const audience = m.audience || 'patient';
+      const cards = document.getElementById(`${audience}-cards`);
+      const i = count[audience]++;
       const a = document.createElement('a');
       a.className = 'card';
       a.href = m.href;

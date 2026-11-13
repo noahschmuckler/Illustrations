@@ -14,6 +14,12 @@ It's a static site with no build step: plain HTML, CSS and JavaScript modules, w
 | 3 | Triglycerides: extra energy → liver → triglycerides, worse LDL plaque, pancreatitis | `modules/triglycerides.js` |
 | 4 | Blood pressure: systolic/diastolic, salt & water, kidney filters (eGFR, UACR, CKD), the kidney feedback loop, medicines | `modules/bp.js` |
 
+### For providers
+
+| # | Module | File |
+|---|--------|------|
+| 1 | Renin–angiotensin–aldosterone system: physiology, hypertension & CKD, medications on the pathway, with sources | `modules/raas.js` |
+
 ## Presenting
 
 - Scroll or swipe to move through a module.
@@ -44,7 +50,7 @@ For example, `crack.grow(seg(S('cracks'), 0.1, 0.45))` opens the crack during th
 
 1. Copy `modules/cholesterol.html` to `modules/<new>.html` and point its script tag at `<new>.js`.
 2. Write `modules/<new>.js` with `steps`, `build`, and `render`, then call `runModule(...)`.
-3. Add an entry to `js/modules.js`. It then shows up on the home page.
+3. Add an entry to `js/modules.js`. It then shows up on the home page. Set `audience: 'provider'` to list it under **For providers**, and pass `dense: true` to `runModule` for text-heavier captions.
 
 ## Running locally
 
