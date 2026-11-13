@@ -120,3 +120,9 @@ body.dense .caption { max-height: 92vh; overflow: hidden; }
 .aldo { color: #c99bff; }
 .caption .part { display: block; color: var(--ink-dim); font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; margin-bottom: .6em; }
 .caption ul.sources li { font-size: clamp(0.9rem, 1vw, 1.05rem); margin-bottom: .45em; }
+.narrate {
+  background: transparent; color: var(--ink); border: 1px solid #ffb84d; border-radius: 8px;
+  padding: 5px 12px; font: inherit; font-size: .85rem; font-weight: 600; cursor: pointer; margin-left: auto;
+}
+.narrate.on { background: #ffb84d; color: #1a1206; }
+.narrate + .cap-toggle { margin-left: 0; }

@@ -26,6 +26,7 @@ It's a static site with no build step: plain HTML, CSS and JavaScript modules, w
 - Keys: <kbd>↓</kbd> / <kbd>Space</kbd> / <kbd>→</kbd> go to the next step, and <kbd>↑</kbd> / <kbd>←</kbd> go back.
 - <kbd>C</kbd> hides the captions so the picture fills the screen. <kbd>Esc</kbd> returns to the library.
 - The dots on the right edge jump straight to a step.
+- Modules with narration (RAAS) have a **▶ Listen** button (or press <kbd>N</kbd>). The slides follow the audio; jumping to another step moves the audio there.
 
 ## Layout
 
@@ -37,6 +38,7 @@ js/scrolly.js         the scroll engine: captions, progress, keyboard and rail n
 js/art.js             shared art: artery tube, cracks, HDL/LDL/TG, red cells, cross-section, capillary close-up
 modules/<name>.html   tiny shell page that loads modules/<name>.js
 modules/<name>.js     one module: its `steps` (caption text) plus build() and render()
+audio/                narration files (MP3) for modules that have them
 ```
 
 ### How a module works
